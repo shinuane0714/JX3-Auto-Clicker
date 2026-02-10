@@ -65,7 +65,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='连点器.app',
-    icon=None,
+    icon='app_icon.icns',
     bundle_identifier='com.jx3.autoclicker',
     info_plist={
         'NSHighResolutionCapable': 'True',

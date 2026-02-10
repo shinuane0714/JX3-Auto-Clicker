@@ -4,280 +4,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>macOS 智能连点器</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>剑三连点器</title>
     <style>
         :root {
-            --primary: #00f2fe;
-            --secondary: #4facfe;
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text: #f8fafc;
-            --accent: #f43f5e;
+            --primary: #7c5ce0;
+            --primary-light: #a78bfa;
+            --bg: #1a1a2e;
+            --card-bg: #24243e;
+            --surface: #2d2d4a;
+            --text: #e8e8f0;
+            --text-secondary: #9898b0;
+            --success: #4ade80;
+            --danger: #f87171;
+            --border: rgba(255, 255, 255, 0.08);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
         }
 
         body {
             background: var(--bg);
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            padding: 12px 0;
         }
 
         .container {
-            width: 450px;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative;
+            width: 440px;
+            padding: 0 28px 16px;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
-            z-index: -1;
-            border-radius: 26px;
-            opacity: 0.3;
-            filter: blur(10px);
+        /* 头部 */
+        .header {
+            text-align: center;
+            padding: 16px 0 10px;
+        }
+
+        .header img {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 12px rgba(124, 92, 224, 0.4));
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 8px;
-            background: linear-gradient(to right, #fff, #94a3b8);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
+            color: #fff;
+            margin-bottom: 4px;
         }
 
         .subtitle {
-            text-align: center;
-            color: #94a3b8;
-            font-size: 14px;
-            margin-bottom: 32px;
+            color: var(--text-secondary);
+            font-size: 13px;
         }
 
+        /* 权限检查列表 */
+        .checklist {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin: 10px 0 14px;
+            border: 1px solid var(--border);
+        }
+
+        .checklist-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .check-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .check-icon.ok {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+        }
+
+        .check-icon.fail {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+        }
+
+        .check-icon.loading {
+            background: rgba(152, 152, 176, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .check-label.fail-text {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* 表单元素 */
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 400;
-            color: #cbd5e1;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
         }
 
         input,
         select {
             width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
             color: white;
-            font-size: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            transition: border-color 0.2s;
         }
 
         input:focus,
         select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.1);
         }
 
-        .btn-container {
-            margin-top: 40px;
+        select option {
+            background: var(--surface);
+            color: white;
         }
 
+        /* 快捷键行 */
+        .hotkey-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* 按钮 */
         .main-btn {
             width: 100%;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 14px;
+            border-radius: 12px;
             border: none;
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.2s;
+            margin-top: 4px;
         }
 
         .btn-start {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #0f172a;
-            box-shadow: 0 10px 20px -5px rgba(0, 242, 254, 0.4);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3);
         }
 
         .btn-stop {
-            background: var(--accent);
+            background: var(--danger);
             color: white;
-            box-shadow: 0 10px 20px -5px rgba(244, 63, 94, 0.4);
+            box-shadow: 0 4px 14px rgba(248, 113, 113, 0.3);
         }
 
         .main-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             filter: brightness(1.1);
         }
 
         .main-btn:active {
-            transform: translateY(1px);
+            transform: translateY(0);
         }
 
-        .status-badge {
+        /* 状态栏 */
+        .status-bar {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 24px;
-            padding: 8px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            margin-top: 16px;
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--surface);
             font-size: 13px;
+            border: 1px solid var(--border);
         }
 
         .dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #64748b;
+            background: #555;
         }
 
         .dot.active {
-            background: #22c55e;
-            box-shadow: 0 0 10px #22c55e;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0% {
-                opacity: 0.4;
+
+            0%,
+            100% {
+                opacity: 0.5;
             }
 
             50% {
                 opacity: 1;
             }
-
-            100% {
-                opacity: 0.4;
-            }
         }
 
         .current-app {
-            color: var(--primary);
-            font-weight: 600;
+            color: var(--primary-light);
+            font-weight: 500;
         }
 
-        .hotkey-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
+        /* 底部 */
         .footer {
-            margin-top: 32px;
+            margin-top: 20px;
             text-align: center;
             font-size: 12px;
-            color: #475569;
+            color: var(--text-secondary);
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>macOS 连点器</h1>
-        <p class="subtitle">智能识别窗口 · 高精度点击</p>
-
-        <div class="form-group">
-            <label for="interval">点击间隔 (秒)</label>
-            <input type="number" id="interval" value="0.5" step="0.1" min="0.01">
+        <div class="header">
+            <img src="icon.png" alt="玄晶">
+            <h1>剑三连点器</h1>
+            <p class="subtitle">智能识别窗口 · 高精度按键</p>
         </div>
 
-        <div class="form-group">
-            <label for="target_app">目标软件名称 (留空则在所有界面点击)</label>
-            <select id="target_app">
-                <option value="">所有软件</option>
-                <option value="剑网3无界" selected>剑网3无界</option>
-            </select>
+        <!-- 权限 Checklist -->
+        <div class="checklist">
+            <div class="checklist-title">系统权限检查</div>
+            <div class="check-item">
+                <div id="checkAccessibility" class="check-icon loading">⏳</div>
+                <span id="labelAccessibility" class="check-label">辅助功能权限</span>
+            </div>
+            <div class="check-item">
+                <div id="checkInput" class="check-icon loading">⏳</div>
+                <span id="labelInput" class="check-label">输入监控权限</span>
+            </div>
+            <div class="check-item">
+                <div id="checkBackend" class="check-icon loading">⏳</div>
+                <span id="labelBackend" class="check-label">后端服务连接</span>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="mode">连点模式</label>
-            <select id="mode">
-                <option value="mouse">鼠标连点</option>
-                <option value="keyboard" selected>按键连点</option>
-            </select>
-        </div>
-
-        <div id="mouse-options" style="display: none;">
+        <!-- 基本设置 -->
+        <div class="card">
+            <div class="card-title">基本设置</div>
             <div class="form-group">
-                <label for="button">鼠标按键</label>
-                <select id="button">
-                    <option value="left" selected>左键 (Left Click)</option>
-                    <option value="right">右键 (Right Click)</option>
+                <label>点击间隔（秒）</label>
+                <input type="number" id="interval" value="0.5" step="0.1" min="0.01">
+            </div>
+            <div class="form-group">
+                <label>目标软件</label>
+                <select id="target_app">
+                    <option value="">所有软件</option>
+                    <option value="剑网3无界" selected>剑网3无界</option>
                 </select>
             </div>
         </div>
 
-        <div id="keyboard-options">
+        <!-- 连点模式 -->
+        <div class="card">
+            <div class="card-title">连点模式</div>
             <div class="form-group">
-                <label for="key">连点按键 (如: f, space, enter)</label>
-                <input type="text" id="key" value="q" placeholder="输入单个字母或功能键名">
+                <label>模式</label>
+                <select id="mode">
+                    <option value="mouse">鼠标连点</option>
+                    <option value="keyboard" selected>按键连点</option>
+                </select>
+            </div>
+            <div id="mouse-options" style="display: none;">
+                <div class="form-group">
+                    <label>鼠标按键</label>
+                    <select id="button">
+                        <option value="left" selected>左键</option>
+                        <option value="right">右键</option>
+                    </select>
+                </div>
+            </div>
+            <div id="keyboard-options">
+                <div class="form-group">
+                    <label>连点按键</label>
+                    <input type="text" id="key" value="q" placeholder="输入按键">
+                </div>
             </div>
         </div>
 
-        <div class="hotkey-group">
-            <div class="form-group">
-                <label for="start_hotkey">启动快捷键</label>
-                <input type="text" id="start_hotkey" value="f9" placeholder="例如: f9">
-            </div>
-            <div class="form-group">
-                <label for="stop_hotkey">停止快捷键</label>
-                <input type="text" id="stop_hotkey" value="f10" placeholder="例如: f10">
+        <!-- 快捷键 -->
+        <div class="card">
+            <div class="card-title">全局快捷键</div>
+            <div class="hotkey-row">
+                <div class="form-group">
+                    <label>启动</label>
+                    <input type="text" id="start_hotkey" value="f9" placeholder="按键录入...">
+                </div>
+                <div class="form-group">
+                    <label>停止</label>
+                    <input type="text" id="stop_hotkey" value="f10" placeholder="按键录入...">
+                </div>
             </div>
         </div>
 
-        <div class="btn-container">
-            <button id="toggleBtn" class="main-btn btn-start">开始运行</button>
-        </div>
+        <!-- 启停按钮 -->
+        <button id="toggleBtn" class="main-btn btn-start">开始运行</button>
 
-        <div class="status-badge">
+        <!-- 状态栏 -->
+        <div class="status-bar">
             <div id="statusDot" class="dot"></div>
             <span id="statusText">未运行</span>
-            <span style="margin-left: 10px;">当前窗口: <span id="activeApp" class="current-app">未知</span></span>
+            <span style="margin-left:8px;">当前窗口: <span id="activeApp" class="current-app">未知</span></span>
         </div>
 
         <div class="footer">
-            提示: 请确保已授予终端「辅助功能」权限
+            权限设置路径: 系统设置 → 隐私与安全性 → 辅助功能 / 输入监控
         </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5005';
+        const API_BASE = 'http://127.0.0.1:5005';
         let isRunning = false;
+
+        // 权限检查
+        async function checkPermissions() {
+            // 检查后端连接
+            try {
+                const res = await fetch(`${API_BASE}/status`);
+                if (res.ok) {
+                    setCheck('checkBackend', 'labelBackend', true, '后端服务已连接');
+                }
+            } catch (e) {
+                setCheck('checkBackend', 'labelBackend', false, '后端服务未连接');
+                return;
+            }
+
+            // 检查辅助功能权限
+            try {
+                const res = await fetch(`${API_BASE}/check_permissions`);
+                const data = await res.json();
+                setCheck('checkAccessibility', 'labelAccessibility', data.accessibility,
+                    data.accessibility ? '辅助功能权限已授予' : '辅助功能权限未授予');
+                setCheck('checkInput', 'labelInput', data.input_monitoring,
+                    data.input_monitoring ? '输入监控权限已授予' : '输入监控权限未授予');
+            } catch (e) {
+                setCheck('checkAccessibility', 'labelAccessibility', false, '权限检测失败');
+                setCheck('checkInput', 'labelInput', false, '权限检测失败');
+            }
+        }
+
+        function setCheck(iconId, labelId, ok, text) {
+            const icon = document.getElementById(iconId);
+            const label = document.getElementById(labelId);
+            icon.className = 'check-icon ' + (ok ? 'ok' : 'fail');
+            icon.textContent = ok ? '✓' : '✗';
+            label.textContent = text;
+            label.className = 'check-label' + (ok ? '' : ' fail-text');
+        }
+
+        checkPermissions();
 
         async function updateStatus() {
             try {
@@ -302,9 +445,7 @@
                     dot.className = 'dot';
                     text.innerText = '未运行';
                 }
-            } catch (e) {
-                console.error('Failed to fetch status', e);
-            }
+            } catch (e) { }
         }
 
         async function loadApps() {
@@ -312,14 +453,8 @@
                 const res = await fetch(`${API_BASE}/apps`);
                 const data = await res.json();
                 const select = document.getElementById('target_app');
-
-                // Keep the first "All" and "JX3" options
                 const currentVal = select.value || "剑网3无界";
-                select.innerHTML = `
-                    <option value="">所有软件</option>
-                    <option value="剑网3无界">剑网3无界</option>
-                `;
-
+                select.innerHTML = '<option value="">所有软件</option><option value="剑网3无界">剑网3无界</option>';
                 data.apps.forEach(app => {
                     if (app !== "剑网3无界") {
                         const opt = document.createElement('option');
@@ -328,11 +463,8 @@
                         select.appendChild(opt);
                     }
                 });
-
                 select.value = currentVal;
-            } catch (e) {
-                console.error('Failed to load apps', e);
-            }
+            } catch (e) { }
         }
 
         document.getElementById('mode').addEventListener('change', (e) => {
@@ -352,7 +484,6 @@
                 start_hotkey: document.getElementById('start_hotkey').value,
                 stop_hotkey: document.getElementById('stop_hotkey').value
             };
-
             try {
                 await fetch(`${API_BASE}${endpoint}`, {
                     method: 'POST',
@@ -361,57 +492,35 @@
                 });
                 updateStatus();
             } catch (e) {
-                alert('无法连接到后端服务器，请确认 Python 服务已启动');
+                alert('无法连接后端服务');
             }
         });
 
-        // 快捷键捕获逻辑
+        // 快捷键捕获
         function setupHotkeyCapture(id) {
             const el = document.getElementById(id);
             el.addEventListener('keydown', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-
                 let key = e.key;
-
-                // 映射常见按键到 pynput 格式
                 const keyMap = {
-                    'Control': 'ctrl',
-                    'Alt': 'alt',
-                    'Meta': 'cmd',
-                    'Shift': 'shift',
-                    ' ': 'space',
-                    'ArrowUp': 'up',
-                    'ArrowDown': 'down',
-                    'ArrowLeft': 'left',
-                    'ArrowRight': 'right',
-                    'Escape': 'esc'
+                    'Control': 'ctrl', 'Alt': 'alt', 'Meta': 'cmd', 'Shift': 'shift',
+                    ' ': 'space', 'ArrowUp': 'up', 'ArrowDown': 'down',
+                    'ArrowLeft': 'left', 'ArrowRight': 'right', 'Escape': 'esc'
                 };
-
-                if (keyMap[key]) {
-                    key = keyMap[key];
-                } else if (key.length === 1) {
-                    key = key.toLowerCase();
-                } else {
-                    key = key.toLowerCase(); // 例如: "F9" -> "f9"
-                }
-
+                if (keyMap[key]) key = keyMap[key];
+                else key = key.toLowerCase();
                 el.value = key;
-                // 失去焦点以结束录制
                 el.blur();
             });
-
             el.addEventListener('focus', () => {
                 el.dataset.oldValue = el.value;
                 el.value = '';
                 el.placeholder = '请按键...';
             });
-
             el.addEventListener('blur', () => {
-                if (!el.value) {
-                    el.value = el.dataset.oldValue || 'f9';
-                }
-                el.placeholder = '例如: f9';
+                if (!el.value) el.value = el.dataset.oldValue || 'f9';
+                el.placeholder = '按键录入...';
             });
         }
 
@@ -419,7 +528,6 @@
         setupHotkeyCapture('stop_hotkey');
         setupHotkeyCapture('key');
 
-        // Polling
         setInterval(updateStatus, 1000);
         setInterval(loadApps, 5000);
         updateStatus();

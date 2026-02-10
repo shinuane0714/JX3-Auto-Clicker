@@ -8,20 +8,26 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from pynput import mouse, keyboard
 
-# --- macOS Stealth Mode ---
-try:
-    import AppKit
-    ns_app = AppKit.NSApplication.sharedApplication()
-    ns_app.setActivationPolicy_(AppKit.NSApplicationActivationPolicyProhibited)
-except:
-    pass
+# --- macOS Stealth Mode (only for standalone backend, not packaged app) ---
+# When running as packaged app, pywebview handles AppKit
+if not getattr(sys, 'frozen', False) and 'webview' not in sys.modules:
+    try:
+        import AppKit
+        ns_app = AppKit.NSApplication.sharedApplication()
+        ns_app.setActivationPolicy_(AppKit.NSApplicationActivationPolicyProhibited)
+    except:
+        pass
 
 # Setup logging (reduced for production)
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Determine app directory
-if getattr(sys, 'frozen', False):
-    APP_DIR = os.path.dirname(os.path.dirname(sys.executable))
+if os.environ.get('APP_RESOURCE_DIR'):
+    APP_DIR = os.environ['APP_RESOURCE_DIR']
+elif getattr(sys, 'frozen', False):
+    # Fallback for frozen: Contents/MacOS -> Contents -> Contents/Resources
+    exe_dir = os.path.dirname(sys.executable)
+    APP_DIR = os.path.join(os.path.dirname(exe_dir), 'Resources')
 else:
     APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -215,5 +221,36 @@ def get_apps():
     app_names = sorted(list(set([app.localizedName() for app in apps if app.localizedName()])))
     return jsonify({"apps": app_names})
 
+@app.route('/check_permissions', methods=['GET'])
+def check_permissions():
+    """Check if the app has necessary macOS permissions."""
+    can_listen = False
+    can_control = False
+    
+    # Test keyboard listener
+    try:
+        import Quartz
+        # Try to create an event tap - this will fail without accessibility permission
+        tap = Quartz.CGEventTapCreate(
+            Quartz.kCGSessionEventTap,
+            Quartz.kCGHeadInsertEventTap,
+            Quartz.kCGEventTapOptionListenOnly,
+            Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown),
+            lambda *args: None,
+            None
+        )
+        if tap:
+            can_listen = True
+            can_control = True
+    except:
+        pass
+    
+    return jsonify({
+        "accessibility": can_listen,
+        "input_monitoring": can_control,
+        "message": "" if (can_listen and can_control) else "请在「系统设置 → 隐私与安全性 → 辅助功能」和「输入监控」中启用连点器"
+    })
+
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
     app.run(port=5005)

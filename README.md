@@ -26,7 +26,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/YOUR_USERNAME/auto-clicker.git
+git clone https://github.com/shinuane0714/auto-clicker.git
 cd auto-clicker
 
 # 创建虚拟环境
@@ -74,9 +74,8 @@ pyinstaller autoclicker.spec --clean
 
 ## 🎮 针对剑网3优化
 
-- 自动识别 `JX3_Client`、`剑网3无界`、`剑网三` 等进程名
-- 默认配置已针对剑网3优化
-- 支持在游戏内使用 F9/F10 全局控制
+- 默认配置已针对剑网3优化，也可以自己选择需要的软件（未测试其他软件）
+- 支持在游戏内使用自定义按键（默认为 F9/F10）全局后台控制
 
 ## 🛠️ 技术栈
 

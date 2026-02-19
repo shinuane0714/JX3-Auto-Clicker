@@ -73,6 +73,6 @@ app = BUNDLE(
         'NSAccessibilityUsageDescription': '此应用需要辅助功能权限以模拟键盘和鼠标操作',
         'CFBundleName': '连点器',
         'CFBundleDisplayName': 'macOS 智能连点器',
-        'CFBundleShortVersionString': '1.0.0',
+        'CFBundleShortVersionString': '1.0.1',
     },
 )

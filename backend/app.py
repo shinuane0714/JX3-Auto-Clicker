@@ -47,18 +47,26 @@ clicking = False
 click_thread = None
 hotkey_listener = None
 
-# Global state for window tracking to avoid hitting AppKit too hard
+# Global state for window tracking
 current_app_name = "Unknown"
 workspace = None
-try:
-    from AppKit import NSWorkspace
-    workspace = NSWorkspace.sharedWorkspace()
-except:
-    pass
 
 def window_tracker():
     """Separate thread to track the active window every 0.3s."""
-    global current_app_name
+    global current_app_name, workspace
+    
+    # Lazy import AppKit safely
+    if workspace is None:
+        try:
+            from AppKit import NSWorkspace
+            workspace = NSWorkspace.sharedWorkspace()
+        except ImportError:
+            logging.warning("AppKit not found, window tracking disabled")
+            return
+        except Exception as e:
+            logging.error(f"Failed to initialize NSWorkspace: {e}")
+            return
+
     while True:
         try:
             if workspace:
@@ -68,6 +76,8 @@ def window_tracker():
                     current_app_name = active.get('NSApplicationName', 'Unknown')
         except Exception as e:
             logging.error(f"Window tracker error: {e}")
+            # Prevent log spam if it fails continuously
+            time.sleep(1)
         time.sleep(0.3)
 
 # Start tracker immediately

@@ -36,6 +36,15 @@ def run_backend():
     app.run(port=5005, use_reloader=False, threaded=True)
 
 def main():
+    # macOS specific: Ensure AppKit is initialized on the Main Thread
+    # This prevents crashes when background threads (like Flask) import AppKit logic later
+    if sys.platform == 'darwin':
+        try:
+            import AppKit
+            AppKit.NSApplication.sharedApplication()
+        except ImportError:
+            pass
+
     backend_thread = threading.Thread(target=run_backend, daemon=True)
     backend_thread.start()
     
